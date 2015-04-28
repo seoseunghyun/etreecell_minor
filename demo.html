@@ -1,0 +1,108 @@
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<title>etreecell Demo</title>
+		<script type="text/javascript" src="js/raphael.js"></script>
+		<script type="text/javascript" src="js/etreecell.js"></script>
+		<style>
+			input {
+				outline: none;
+				
+			}
+			text {
+				-webkit-user-select: none;
+			}
+			
+		</style>
+	</head>
+	<body style="margin: 0 auto; width: 100%; height: 100%;background:url('img/Chalkboard.jpg')">
+				<button type="button" id="btn" style="position:absolute;top:0px;left:0px;z-index: 1">animation</button><button type="button" id="btnimage" style="position:absolute;top:0px;left:100px;z-index: 1">image</button><button type="button" id="btntext" style="position:absolute;top:0px;left:150px;z-index: 1">text</button>
+				<button type="button" id="btnzoom" style="position:absolute;top:0px;left:200px;z-index: 1">zoom</button><button type="button" id="btnExport" style="position:absolute;top:0px;left:250px;z-index: 1">export</button><span id="select" style="position: absolute;left: 350px;color: black">test</span>
+		<div id="canvas" style="width: 100%; height: 100%;" style="position:absolute; ">
+		</div>
+
+	</body>
+</html>
+
+<script type="text/javascript">
+
+	var etcl = new etreecell( 'canvas' );
+	etcl.mode.animate.createCell = true;
+	etcl.mode.edit = true;
+
+	etcl.defaultStyle.theme = 'dark';
+
+
+	var cells = []
+/*
+	var background = etcl.paper.rect(0,0,etcl.paper.width,etcl.paper.height,0)
+	background.attr({
+		'fill' : '#eeeeee',
+		'fill-opacity' : 0,
+		'stroke-width' : 0
+	})
+	.dblclick(function(e){
+		e.preventDefault()
+		var c1_ = etcl.createCell( 'cell'+ cells.length , { x : e.offsetX - 100 , y : e.offsetY - 15 , width : 200, height : 30, 'stroke' : 'none' } , 'text' );
+		cells.push(c1_);
+		
+	})
+	.toBack();
+*/
+
+	setInterval(function(){
+		document.getElementById('select').innerHTML = "";
+		document.getElementById('select').innerHTML += ""
+		if(etcl.selected.cell[0]){
+			document.getElementById('select').innerHTML += (etcl.selected.cell[0].id)
+		}
+		if(etcl.selected.cell[1]){
+		document.getElementById('select').innerHTML += (etcl.selected.cell[1].id)
+	}	
+	}, 1)
+
+	//etcl.renderer.
+	document.getElementById('btn').addEventListener('click', function(){
+		cells[0].animate({'x' : 100, 'y' : 200, 'width' : 400, 'height' : 150, 'fill' : '#efcebb', shape : { 'font-size' : 15 } },1000,"<>");
+	});	
+
+	document.getElementById('btnimage').addEventListener('click', function(){
+		var c1_ = etcl.createCell( 'cell'+ cells.length , { x : document.width/2 , y : document.height/2 , width : 200, height : 30, 'stroke' : 'none', 'fill-opacity' : 0.0 } , 'image' );
+
+		cells.push(c1_);
+	});
+	document.getElementById('btntext').addEventListener('click', function(){
+		var c1_ = etcl.createCell( 'cell'+ cells.length , { x : document.width/2 , y : document.height/2 , width : 200, height : 30, 'stroke' : '#ffffff', 'fill-opacity' : 0.0, 'stroke-width' : 3, shape : { 'fill' : '#ffffff' } } , 'text' );
+
+		cells.push(c1_);
+	});
+	
+	var cell1 = etcl.createCell('cell1',{ 'fill' : '#bd0a38', shape : { fill : '#ffffff' , 'font-size' : 25 } },'text').attr({ 'shape' : { 'fill' : '#000000' } }).animate({ 'fill' : '#eeeeee',shape : {'font-size' : 10} },900,"<>")
+	cells.push(cell1)
+	
+	document.getElementById('btnzoom').addEventListener('click', function(){
+		etcl.paper.animateViewBox( 0, 0, etcl.paper.width / 2, etcl.paper.height / 2, 250, "<>");
+	});
+	document.getElementById('btnExport').addEventListener('click', function(){
+console.log(etcl.exportData());
+console.log(etcl);
+	});
+		var c3 =  etcl.createCell( 'cell10' , { x : 100 , y :500 , width : 200, height : 30, 'stroke' : 'none', fill : '#eeeeee' } , 'text' );
+		var c4 =  etcl.createCell( 'cell11' , { x : 500 , y :550 , width : 200, height : 30, 'stroke' : 'none', fill : '#eeeeee' } , 'text' );
+		var c5 =  etcl.createCell( 'cell11' , { x : 800 , y :550 , width : 200, height : 30, 'stroke' : 'none', fill : '#eeeeee' } , 'text' );
+		var c6 =  etcl.createCell( 'cell11' , { x : 100 , y :250 , width : 200, height : 30, 'stroke' : 'none', fill : '#eeeeee' } , 'text' );
+		c3.link(c4,{'stroke-dasharray' : '-'});
+		//c3.link(c5,{'stroke-dasharray' : '-'});
+		c3.link(c6,{'stroke-dasharray' : '-'});
+		etcl.bindDataCell( c3 , c4 , 0 ,0 );
+		etcl.bindDataCell( c3 , c5 , 0 ,0 );
+		//etcl.unbindDataCell( c3 , c4 , 0 ,0 );
+
+
+    window.onresize = function(){
+	    
+        etcl.resize();
+    }
+	
+</script>
+	
