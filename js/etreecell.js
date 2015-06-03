@@ -1,8 +1,8 @@
 // ┌────────────────────────────────────────────────────────────────────┐ \\
 // │ etreecell 0.0.1 - etreecell Document Form JavaScript Library       │ \\
 // ├────────────────────────────────────────────────────────────────────┤ \\
-// │ Copyright © 2010-2014 etreecell (http://etreecell.com)             │ \\
-// │ Copyright © 2009-2014 seoseunghyun (http://seoseunghyun.com)       │ \\
+// │ Copyright © 2010-2015 etreecell (http://etreecell.com)             │ \\
+// │ Copyright © 2009-2015 seoseunghyun (http://seoseunghyun.com)       │ \\
 // ├────────────────────────────────────────────────────────────────────┤ \\
 // │ Licensed under the CC () license.                                  │ \\
 // └────────────────────────────────────────────────────────────────────┘ \\
@@ -63,18 +63,18 @@
                 case 91:
                     this_.pressedKey.ctrl = true;
                     break;
-                    /*
+                    
 case 8 : 
-					if(this_.mode.edit){
+					if(this_.mode.edit && this_.active.cell == '' ){
 						this_.selected.cell[0].remove();
 					}
 					break;
 				case 46 : 
-					if(this_.mode.edit){
+					if(this_.mode.edit && this_.active.cell == ''){
 						this_.selected.cell[0].remove();
 					}
 					break;
-*/
+
                 default:
                     break;
             }
@@ -630,6 +630,7 @@ case 8 :
                         });
                     }
                 }, function() {
+	                //c.preventDefault();
                     functionInArray(_cell.events.dragstart, this);
                 }, function() {
                     functionInArray(_cell.events.dragend, this);
@@ -740,7 +741,7 @@ case 8 :
                 }, true);
 
                 _cell.overrideEvent(function(e) {
-                    _cell.select()
+                    _cell.select();
                 }, 'mousedown');
                 _cell.overrideEvent(function(e) {
 
@@ -1119,6 +1120,7 @@ case 8 :
                     'width': this_.shape.getBBox().width + this_.relativePositionShape.x * 2
                 })
             }
+            _cell.linkPositioning();
         }, 'refreshData')
 
     }
@@ -1436,13 +1438,25 @@ case 8 :
         // 제거부
         removeCell: function(_cell) {
 
-            var objKey = keyInArray(this.obj.cell, _cell);
+            var objKey_ = keyInArray(this.obj.cell, _cell);
 
-            if (objKey) {
-                console.log(this.obj.cell[objKey]);
-                this.obj.cell[objKey].shape.remove();
-                delete this.obj.cell[objKey];
-                this.obj.cell.splice(objKey, 1);
+            if (objKey_) {
+               // console.log(this.obj.cell[objKey]);
+               // console.log(this.obj.cell[objKey].form.shape);
+               
+               	for(var i_ in this.obj.cell[objKey_].io.link ){
+	                this.obj.cell[objKey_].io.link[i_].remove();
+                }
+                
+                for(var i_ in this.obj.cell[objKey_].helpers.linkers ){
+	                this.obj.cell[objKey_].helpers.linkers[i_].remove();
+                }
+                this.obj.cell[objKey_].form.shape.remove();
+                this.obj.cell[objKey_].shape.remove();
+                delete this.obj.cell[objKey_].form;
+                delete this.obj.cell[objKey_];
+                
+                this.obj.cell.splice(objKey_, 1);
             }
 
         },
@@ -1452,7 +1466,9 @@ case 8 :
             var objKey_ = keyInArray(this.obj.link, _link);
 
             if (objKey_) {
-
+	            
+				this.obj.link[objKey_].link.remove();
+				delete this.obj.link[objKey_];
                 this.obj.link.splice(objKey_, 1);
 
             }

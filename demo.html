@@ -16,6 +16,7 @@
 		</style>
 	</head>
 	<body style="margin: 0 auto; width: 100%; height: 100%;background:url('img/Chalkboard.jpg')">
+		<textarea id="console_select" style="position: absolute; top:100px; z-index: 10"></textarea>
 				<button type="button" id="btn" style="position:absolute;top:0px;left:0px;z-index: 1">animation</button><button type="button" id="btnimage" style="position:absolute;top:0px;left:100px;z-index: 1">image</button><button type="button" id="btntext" style="position:absolute;top:0px;left:150px;z-index: 1">text</button>
 				<button type="button" id="btnzoom" style="position:absolute;top:0px;left:200px;z-index: 1">zoom</button><button type="button" id="btnExport" style="position:absolute;top:0px;left:250px;z-index: 1">export</button><span id="select" style="position: absolute;left: 350px;color: black">test</span>
 		<div id="canvas" style="width: 100%; height: 100%;" style="position:absolute; ">
@@ -50,6 +51,7 @@
 	.toBack();
 */
 
+/*
 	setInterval(function(){
 		document.getElementById('select').innerHTML = "";
 		document.getElementById('select').innerHTML += ""
@@ -60,6 +62,21 @@
 		document.getElementById('select').innerHTML += (etcl.selected.cell[1].id)
 	}	
 	}, 1)
+*/
+
+setInterval(function(){
+	document.getElementById('console_select').innerHTML = "selected : ";
+	for( var i in etcl.selected.cell ){
+		document.getElementById('console_select').innerHTML += " " + etcl.selected.cell[i].id;
+	}
+	
+	
+	document.getElementById('console_select').innerHTML += "\nactivated : ";
+	for( var i in etcl.active.cell ){
+		document.getElementById('console_select').innerHTML += " " + etcl.active.cell[i].id;
+	}
+	
+}, 300);
 
 	//etcl.renderer.
 	document.getElementById('btn').addEventListener('click', function(){
@@ -93,7 +110,7 @@ console.log(etcl);
 		var c6 =  etcl.createCell( 'cell11' , { x : 100 , y :250 , width : 200, height : 30, 'stroke' : 'none', fill : '#eeeeee' } , 'text' );
 		c3.link(c4,{'stroke-dasharray' : '-'});
 		//c3.link(c5,{'stroke-dasharray' : '-'});
-		c3.link(c6,{'stroke-dasharray' : '-'});
+		//c3.link(c6,{'stroke-dasharray' : '-'});
 		etcl.bindDataCell( c3 , c4 , 0 ,0 );
 		etcl.bindDataCell( c3 , c5 , 0 ,0 );
 		//etcl.unbindDataCell( c3 , c4 , 0 ,0 );
