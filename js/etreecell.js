@@ -25,7 +25,7 @@
         this.paper = this.render.constructor( _canvas );
 		
         this.render.etreecell = this;
-		this.render.background = this.render.background(this,this.paper);
+		this.render.background = this.render.setBackgroundEvent(this,this.paper);
 
 
         // etreecell's mode (read & write mode)
@@ -117,7 +117,7 @@ case 8 :
             return new Raphael(document.getElementById(_paper));
         },
         
-        background : function(_etreecell , _render){
+        setBackgroundEvent : function(_etreecell , _render){
 	        var etreecell_ = this.etreecell;
 	        
 	        return  _render.rect(0, 0, _etreecell.paper.width, _etreecell.paper.height, 0)
@@ -129,7 +129,7 @@ case 8 :
 
             })
             .dblclick(function(e) {
-
+				e.preventDefault()
                 etreecell_.createCell(guid(), {
                     x: e.offsetX - 100,
                     y: e.offsetY - 13,
@@ -748,6 +748,7 @@ case 8 :
                     var _shape = e.shape;
                     var _x = e.x;
                     var _y = e.y;
+                    
 
                     _shape.attr({
 
@@ -755,6 +756,9 @@ case 8 :
                         y: shapeAction_.originalPosition_.y + _y
 
                     });
+                    
+                   
+
 
                     _cell.linkPositioning();
                     for (var i in _cell.styleBinders.x) {
@@ -808,7 +812,8 @@ case 8 :
                 }, "dragstart");
 
                 _cell.overrideEvent(function(_shape) {
-
+					 _cell.styleAttrs.x = _shape.attr('x');
+					 _cell.styleAttrs.y = _shape.attr('y');
                 }, "dragend");
 
                 _cell.overrideEvent(function() {
@@ -1001,6 +1006,7 @@ case 8 :
                     fixIndex[1] = parsePosit(parseInt(_fixIndex[1])) + 4;
                 }
             }
+
             var x1 = path[fixIndex[0]].x,
                 y1 = path[fixIndex[0]].y,
                 x4 = path[fixIndex[1]].x,
@@ -1033,6 +1039,7 @@ case 8 :
         var styleAttrs_ = _cell.styleAttrs.shape || {};
 
         _cell.setData(0, 'Input text to dblclick!');
+        
         this.shape = _etreecell.paper
             .text(_cell.styleAttrs.x + this.relativePositionShape.x, _cell.styleAttrs.y + this.relativePositionShape.y, '')
             .attr({
@@ -1092,10 +1099,11 @@ case 8 :
         _cell.pushEvent(function() {
 
             if (_cell.styleAttrs.shape) {
-                this_.active.input.style.color = _cell.styleAttrs.shape.color || 'black';
+
+                this_.active.input.style.color = _cell.styleAttrs.shape.fill || 'black';
                 this_.active.input.style.fontSize = _cell.styleAttrs.shape['font-size'] + 'px' || 13;
             }
-
+ this_.active.input.value = _cell.getData(0)
 
             document.getElementById(_etreecell.canvas).appendChild(this_.active.wrapper);
 
@@ -1410,6 +1418,32 @@ case 8 :
         tmp: {
             helperLinking_: false
         },
+        
+        reset : function(){
+	        this.obj = {
+            cell: [],
+            link: []
+	        }
+	
+	        this.selected= {
+	            cell: [],
+	            link: []
+	        }
+	
+	        this.active= {
+	            cell: [],
+	            link: []
+	        }
+	
+	        this.type= {}
+	
+	        this.tmp= {
+	            helperLinking_: false
+	        }
+
+	        this.render.background = this.render.setBackgroundEvent(this,this.paper);
+	        		
+        },
 
         // 기본 이벤트
         resize: function(_width, _height) {
@@ -1717,6 +1751,7 @@ case 8 :
                         _cell.form.shape.attr(_attrs.shape)
                     }
                     _cell.styleAttrs[i] = _attrs[i];
+                    
 
                 }
 
@@ -1844,7 +1879,7 @@ if( !this.mode.edit ){
                     functionInArray(_cell.events.dragstart, _cell.shape)
 
                 }, function(_x, _y) {
-
+					functionInArray(_cell.events.dragend, _cell.shape)
                 })
                 .mouseup(function() {
 
@@ -1914,6 +1949,7 @@ if( !this.mode.edit ){
         // 셀 데이타 입출력
         setDataCell: function(_cell, _key, _data) {
             _cell.data[_key] = _data;
+            _cell.refreshData();
             //functionInArray( _cell.events.refreshData , { key : _key , data : _data } );
 
             // 연결되어 있는 모든 셀의 정보를 reset
@@ -1928,6 +1964,26 @@ if( !this.mode.edit ){
             _cell.data.splice(_key, 1);
             //functionInArray( _cell.events.refreshData , { key : _key } );
         },
+        
+        getCellById: function(_cellId){
+	        for(var i_ in this.obj.cell) {
+		        if(this.obj.cell[i_].id == _cellId){
+			        return this.obj.cell[i_]
+		        }
+	        }
+			return false;
+        },
+        
+        getLinkById: function(_linkId){
+/*
+	        for(var i_ in this.obj.cell) {
+		        if(this.obj.cell[i_].id == _cellId){
+			        return this.obj.cell[i_]
+		        }
+	        }
+			return false;
+*/
+        },
 
         exportData: function() {
             var exportArray_ = new Array();
@@ -1936,11 +1992,14 @@ if( !this.mode.edit ){
             var cellObjs_ = this.obj.cell;
             var cellLinks_ = this.obj.link;
             for (var i in cellObjs_) {
+
                 cellArray_[i] = '{ "id" : "' + (cellObjs_[i].id) + '", ';
                 cellArray_[i] += '"styleAttrs" : { ';
 
                 var tmpAttrs_ = new Array();
                 for (var j in cellObjs_[i].styleAttrs) {
+	                
+	                
                     if (j == 'shape') {
                         var tmpshapes_ = new Array();
                         for (var k in cellObjs_[i].styleAttrs.shape) {
@@ -1956,6 +2015,8 @@ if( !this.mode.edit ){
                 cellArray_[i] += tmpAttrs_.join(', ');
 
                 cellArray_[i] += '}, ';
+                cellArray_[i] += '"formType" : "'+cellObjs_[i].form.formType+'", ';
+                cellArray_[i] += '"formId" : "'+cellObjs_[i].form.formId+'", ';
                 cellArray_[i] += '"data" : { ';
                 var tmpDatas_ = new Array();
                 for (var j in cellObjs_[i].data) {
@@ -1968,10 +2029,24 @@ if( !this.mode.edit ){
                 cellArray_[i] += ' } ';
                 cellArray_[i] += '}';
             }
-
+			
             for (var i in cellLinks_) {
+
                 linkArray_[i] = '{ "inCell" : "' + (cellLinks_[i].inCell.id) + '", "outCell" : "' + (cellLinks_[i].outCell.id) + '", ';
                 linkArray_[i] += '"inFixIndex" : "' + (cellLinks_[i].fixIndex[0]) + '", "outFixIndex" : "' + (cellLinks_[i].fixIndex[1]) + '", ';
+                linkArray_[i] += '"dataBinder" : [ ';
+
+                var tmpBinder_ = new Array();
+
+                for (var j in cellLinks_[i].dataBinder) {
+	                console.log(cellLinks_[i].dataBinder[j]);
+                        tmpBinder_.push('["' + cellLinks_[i].dataBinder[j][0] + '","' + cellLinks_[i].dataBinder[j][1] + '"]');
+                }
+
+                linkArray_[i] += tmpBinder_.join(', ');
+                
+                linkArray_[i] += ' ], ';
+                
                 linkArray_[i] += '"attrs" : { ';
 
                 var tmpAttrs_ = new Array();
@@ -1991,9 +2066,76 @@ if( !this.mode.edit ){
             return ('[ ' + exportArray_.join(', ') + ' ]');
         },
 
-        importData: function() {
+        importData: function( _data ) {
+			this.paper.clear();
+			this.reset();
+			
+			var tmpJSON_ = eval("(function(){return " + _data + ";})()");
+			var cellArray_ = tmpJSON_[0].cell;
+			var linkArray_ = tmpJSON_[1].link;
+			
+			for ( var i in cellArray_ ) {
+				var tmpCell_ = cellArray_[i];
+				
+				if ( tmpCell_.styleAttrs.x ) {
+					tmpCell_.styleAttrs.x = parseInt( tmpCell_.styleAttrs.x );
+				}
+				
+				if ( tmpCell_.styleAttrs.y ) {
+					tmpCell_.styleAttrs.y = parseInt( tmpCell_.styleAttrs.y );
+				}
+				
+				
+				if ( tmpCell_.styleAttrs.width ) {
+					tmpCell_.styleAttrs.width = parseInt( tmpCell_.styleAttrs.width );
+				}
+				
+				if ( tmpCell_.styleAttrs.height ) {
+					tmpCell_.styleAttrs.height = parseInt( tmpCell_.styleAttrs.height );
+				}
+				
+
+				if ( tmpCell_.styleAttrs.shape && tmpCell_.styleAttrs.shape.x ) {
+					tmpCell_.styleAttrs.shape.x = parseInt( tmpCell_.styleAttrs.shape.x );
+				}
+				
+				if ( tmpCell_.styleAttrs.shape && tmpCell_.styleAttrs.shape.y ) {
+					tmpCell_.styleAttrs.shape.y = parseInt( tmpCell_.styleAttrs.shape.y );
+				}
+				
+				var tmpCreatedCell = this.createCell( tmpCell_.id , tmpCell_.styleAttrs , tmpCell_.formType);
+				for(var j in tmpCell_.data){
+					tmpCreatedCell.setData(j, tmpCell_.data[j]);
+					
+				}
+				
+				
+				if(tmpCell_.formType == "image"){
+				console.log(tmpCell_.styleAttrs);
+				}
+			}
+			
+			for ( var i in linkArray_ ) {
+				console.log(linkArray_[i])
+				var tmpLink_ = linkArray_[i];
+
+				if(tmpLink_.inFixIndex != "auto"){
+					tmpLink_.inFixIndex = parseInt(tmpLink_.inFixIndex)
+				}
+				if(tmpLink_.outFixIndex != "auto"){
+					tmpLink_.outFixIndex = parseInt(tmpLink_.outFixIndex)
+				}
+				var tmpCreatedLink = this.createLink(this.getCellById(tmpLink_.inCell),this.getCellById(tmpLink_.outCell), tmpLink_.attrs, [tmpLink_.outFixIndex,tmpLink_.inFixIndex])
+				
+				for(var j in tmpLink_.dataBinder){
+					//tmpCreatedLink.bindData(, , )
+					
+					
+				}
+			}
 
         },
+        
 
         // 컴파일 용 내부 출력 부
         _print: function() {
