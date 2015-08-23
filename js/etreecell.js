@@ -20,13 +20,11 @@
         this.version = '0.0.1';
         this.canvas = _canvas;
         
-		
         this.render = etreecell.renderer[ _renderer || 'Raphael' ];        
         this.paper = this.render.constructor( _canvas );
 		
         this.render.etreecell = this;
 		this.render.background = this.render.setBackgroundEvent(this,this.paper);
-
 
         // etreecell's mode (read & write mode)
         this.mode = {
@@ -64,7 +62,7 @@
                     this_.pressedKey.ctrl = true;
                     break;
                     
-case 8 : 
+				case 8 : 
 					if(this_.mode.edit && this_.active.cell == '' ){
 						this_.selected.cell[0].remove();
 					}
@@ -118,6 +116,7 @@ case 8 :
         },
         
         setBackgroundEvent : function(_etreecell , _render){
+	        alert('d');
 	        var etreecell_ = this.etreecell;
 	        
 	        return  _render.rect(0, 0, _etreecell.paper.width, _etreecell.paper.height, 0)
@@ -136,12 +135,13 @@ case 8 :
                     width: 200,
                     height: 26,
                     'fill-opacity': 0,
-                    stroke: '#ffffff',
+                    stroke: '#222222',
                     'stroke-width': 2,
                     shape: {
-                        'fill': '#ffffff'
+                        'fill': '#222222'
                     }
                 });
+                
 
             })
             .toBack()
@@ -261,7 +261,7 @@ case 8 :
 
                             etreecell_.tmp.helperLinking.cell.link(_cell, null, [((etreecell_.tmp.helperLinking.fixIndex == 4) ? 'auto' : etreecell_.tmp.helperLinking.fixIndex), ((this.fixIndex == 4) ? 'auto' : this.fixIndex)]);
 
-                            etreecell_.tmp.helperLinking.cell.bindData(_cell, 0, 0)
+//                            etreecell_.tmp.helperLinking.cell.bindData(_cell, 0, 0)
 
                             etreecell_.tmp.helperLinking.cell.refreshData();
                             this_.focusLinker(false, this.fixIndex);
@@ -786,7 +786,7 @@ case 8 :
 
                 _cell.overrideEvent(function(_shape) {
 
-                    _shape.toFront();
+                   // _shape.toFront();
 
                     shapeAction_.originalPosition_.x = _shape.attr('x');
                     shapeAction_.originalPosition_.y = _shape.attr('y');
@@ -794,7 +794,7 @@ case 8 :
                     for (var i in _cell.styleBinders.x) {
                         if (_cell.styleBinders.x[i].shape) {
                             bindersOriginalPosition_.x[i] = _cell.styleBinders.x[i].shape.attr('x');
-                            _cell.styleBinders.x[i].shape.toFront();
+                          //  _cell.styleBinders.x[i].shape.toFront();
                         } else {
                             bindersOriginalPosition_.x[i] = parseInt(_cell.styleBinders.x[i].style.left.split('p')[0])
                         }
@@ -803,7 +803,7 @@ case 8 :
                     for (var i in _cell.styleBinders.y) {
                         if (_cell.styleBinders.y[i].shape) {
                             bindersOriginalPosition_.y[i] = _cell.styleBinders.y[i].shape.attr('y');
-                            _cell.styleBinders.y[i].shape.toFront();
+                          //  _cell.styleBinders.y[i].shape.toFront();
                         } else {
                             bindersOriginalPosition_.y[i] = parseInt(_cell.styleBinders.y[i].style.top.split('p')[0])
                         }
@@ -1743,7 +1743,7 @@ case 8 :
             _cell.shape.attr(_attrs);
             for (var i in _attrs) {
 
-                if (_cell.styleAttrs[i]) {
+              //  if (_cell.styleAttrs[i]) {
                     if (i == 'shape') {
                         for (var j in _attrs.shape) {
                             _cell.styleAttrs.shape[j] = _attrs.shape[j];
@@ -1753,7 +1753,7 @@ case 8 :
                     _cell.styleAttrs[i] = _attrs[i];
                     
 
-                }
+               // }
 
                 for (var j in _cell.styleBinders[i]) {
 
@@ -2116,26 +2116,25 @@ if( !this.mode.edit ){
 			}
 			
 			for ( var i in linkArray_ ) {
-				console.log(linkArray_[i])
+				
 				var tmpLink_ = linkArray_[i];
 
 				if(tmpLink_.inFixIndex != "auto"){
 					tmpLink_.inFixIndex = parseInt(tmpLink_.inFixIndex)
 				}
+				
 				if(tmpLink_.outFixIndex != "auto"){
 					tmpLink_.outFixIndex = parseInt(tmpLink_.outFixIndex)
 				}
-				var tmpCreatedLink = this.createLink(this.getCellById(tmpLink_.inCell),this.getCellById(tmpLink_.outCell), tmpLink_.attrs, [tmpLink_.outFixIndex,tmpLink_.inFixIndex])
+				
+				var tmpCreatedLink = this.createLink(this.getCellById(tmpLink_.inCell),this.getCellById(tmpLink_.outCell), tmpLink_.attrs, [tmpLink_.inFixIndex,tmpLink_.outFixIndex]);
 				
 				for(var j in tmpLink_.dataBinder){
-					//tmpCreatedLink.bindData(, , )
-					
+					etcl.bindDataCell(this.getCellById(tmpLink_.inCell),this.getCellById(tmpLink_.outCell), tmpLink_.dataBinder[j][0], tmpLink_.dataBinder[j][1])				
 					
 				}
 			}
-
         },
-        
 
         // 컴파일 용 내부 출력 부
         _print: function() {
