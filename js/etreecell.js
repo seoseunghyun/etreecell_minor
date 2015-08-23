@@ -286,7 +286,7 @@
 
                             if (this.helper_) {
                                 this.helper_.attr({
-                                    'path': "M " + this.helperOriginalX_ + "," + this.helperOriginalY_ + " L" + (_x + this.helperOriginalX_) + "," + (_y + this.helperOriginalY_),
+                                    'path': "M " + (this.helperOriginalX_ ) + "," + (this.helperOriginalY_ )+ " L" + (_x + this.helperOriginalX_) + "," + (_y + this.helperOriginalY_),
                                     'stroke-dasharray': '-',
                                     'stroke': '#858585'
                                 });
