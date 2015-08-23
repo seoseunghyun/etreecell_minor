@@ -20,6 +20,8 @@
         this.version = '0.0.1';
         this.canvas = _canvas;
         
+        this.zoom = 1;
+        
         this.render = etreecell.renderer[ _renderer || 'Raphael' ];        
         this.paper = this.render.constructor( _canvas );
 		
@@ -41,7 +43,14 @@
             shift: false,
             ctrl: false
         }
+        
+       // !이벤트 함수 배열 목록
+        this.events = {
 
+            selectCell : []
+
+        }
+        
         var this_ = this;
 
 
@@ -116,7 +125,7 @@
         },
         
         setBackgroundEvent : function(_etreecell , _render){
-	        alert('d');
+
 	        var etreecell_ = this.etreecell;
 	        
 	        return  _render.rect(0, 0, _etreecell.paper.width, _etreecell.paper.height, 0)
@@ -767,7 +776,7 @@
                                 x: bindersOriginalPosition_.x[i] + _x
                             });
                         } else {
-                            _cell.styleBinders.x[i].style.left = (bindersOriginalPosition_.x[i] + _x) + 'px';
+                            _cell.styleBinders.x[i].style.left = (bindersOriginalPosition_.x[i] + _x ) + 'px';
                         }
 
                     }
@@ -778,7 +787,7 @@
                                 y: bindersOriginalPosition_.y[i] + _y
                             });
                         } else {
-                            _cell.styleBinders.y[i].style.top = (bindersOriginalPosition_.y[i] + _y) + 'px';
+                            _cell.styleBinders.y[i].style.top = (bindersOriginalPosition_.y[i] + _y ) + 'px';
                         }
                     }
 
@@ -1440,6 +1449,10 @@
 	        this.tmp= {
 	            helperLinking_: false
 	        }
+	        
+	        for( var eventKey_ in this.events ){
+		        this.events[eventKey_] = [];
+	        }
 
 	        this.render.background = this.render.setBackgroundEvent(this,this.paper);
 	        		
@@ -1455,6 +1468,11 @@
             });
 
         },
+        
+        overrideEvent: function(_fn, _event) {
+            this.events[_event] = [_fn];
+        },
+        
 
         // 생성부
         createCell: function(_id, _attrs, _type) {
@@ -1605,6 +1623,7 @@
                     cell_.selected = true;
 
                     this.selected.cell.push(cell_);
+					functionInArray(this.events.selectCell);
                     functionInArray(cell_.events.select);
 
                 }
