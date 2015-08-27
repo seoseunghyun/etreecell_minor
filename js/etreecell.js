@@ -26,7 +26,6 @@
         this.paper = this.render.constructor( _canvas );
 		
         this.render.etreecell = this;
-		this.render.background = this.render.setBackgroundEvent(this,this.paper);
 
         // etreecell's mode (read & write mode)
         this.mode = {
@@ -34,6 +33,7 @@
                 createCell: false
             },
             edit: true,
+            selectHelper : true,
             view: true,
             effect: true,
             control: 'mouse' // able to 'touch'
@@ -51,6 +51,8 @@
 
         }
         
+		this.render.background = this.render.setBackgroundEvent(this,this.paper);
+		
         var this_ = this;
 
 
@@ -128,7 +130,9 @@
 
 	        var etreecell_ = this.etreecell;
 	        
-	        return  _render.rect(0, 0, _etreecell.paper.width, _etreecell.paper.height, 0)
+	        
+	        
+	        var canvas_ =  _render.rect(0, 0, _etreecell.paper.width, _etreecell.paper.height, 0)
             .attr({
 
                 'fill': '#eeeeee',
@@ -153,7 +157,62 @@
                 
 
             })
-            .toBack()
+            .toBack();
+          
+			var rect_;
+			
+			var helperOriginalX, helperOriginalY;
+
+            if(etreecell_.mode.selectHelper){
+		        canvas_.drag(
+		        function(_x, _y){
+
+			        if(_x > 0 && _y > 0){
+				        rect_.attr({
+							'width' : _x,
+							'height' : _y
+						})
+			        }else if(_x < 0 && _y > 0){
+				        rect_.attr({
+					        'x' : helperOriginalX + _x,
+							'width' : _x * -1,
+							'height' : _y
+						})
+			        }else if(_x > 0 && _y < 0){
+				        rect_.attr({
+					        'y' : helperOriginalY + _y,
+							'width' : _x,
+							'height' : _y * -1
+						})
+			        }else if(_x < 0 && _y < 0){
+				        rect_.attr({
+					        'x' : helperOriginalX + _x,
+					        'y' : helperOriginalY + _y,
+							'width' : _x * -1,
+							'height' : _y * -1
+						})
+			        }
+				
+		        
+		        },function(_x, _y){
+			        rect_  = _render.rect(_x,_y,0,0,0)
+					.attr({
+						'stroke-width' : 1,
+						'stroke-dasharray' : '-',
+						'stroke' : '#5a5a5a'
+					});
+					rect_.toBack();
+					
+			        helperOriginalX = _x;
+			        helperOriginalY = _y;
+			    
+			    },function(){
+					rect_.remove();
+		        })
+            }
+
+            
+            return canvas_;
         },
 
         // Create Cell Shape. ( _cell )
@@ -1428,7 +1487,9 @@
             helperLinking_: false
         },
         
-        reset : function(){
+        
+        // 날길 캔버스 이벤트
+        reset : function( _eventArr ){
 	        this.obj = {
             cell: [],
             link: []
@@ -1451,7 +1512,7 @@
 	        }
 	        
 	        for( var eventKey_ in this.events ){
-		        this.events[eventKey_] = [];
+		        this.events[eventKey_] = this.events[_eventArr] || [];
 	        }
 
 	        this.render.background = this.render.setBackgroundEvent(this,this.paper);
@@ -1623,8 +1684,11 @@
                     cell_.selected = true;
 
                     this.selected.cell.push(cell_);
+                    console.log(this);
 					functionInArray(this.events.selectCell);
+					console.log(this.events.selectCell)
                     functionInArray(cell_.events.select);
+                    console.log(cell_.events.select);
 
                 }
 
@@ -2084,10 +2148,12 @@ if( !this.mode.edit ){
             exportArray_.push('{ "link" : [ ' + linkArray_.join(', ') + ' ] } ');
             return ('[ ' + exportArray_.join(', ') + ' ]');
         },
-
-        importData: function( _data ) {
+		// 데이터, 리셋 유무. 리셋 할 경우 캔버스에 남길 이벤트
+        importData: function(_data , _resetBool, _eventArr) {
 			this.paper.clear();
-			this.reset();
+			if(_resetBool){
+				this.reset(_eventArr || []);
+			}
 			
 			var tmpJSON_ = eval("(function(){return " + _data + ";})()");
 			var cellArray_ = tmpJSON_[0].cell;
@@ -2123,6 +2189,7 @@ if( !this.mode.edit ){
 				}
 				
 				var tmpCreatedCell = this.createCell( tmpCell_.id , tmpCell_.styleAttrs , tmpCell_.formType);
+
 				for(var j in tmpCell_.data){
 					tmpCreatedCell.setData(j, tmpCell_.data[j]);
 					
